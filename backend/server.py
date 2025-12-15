@@ -794,9 +794,9 @@ def get_sensor_summary():
     }
 
 
-def run_server(port=8080):
+def run_server(port=8080, host='0.0.0.0'):
     """Start the API server"""
-    server = HTTPServer(('localhost', port), APIHandler)
+    server = HTTPServer((host, port), APIHandler)
     print(f"""
 ╔══════════════════════════════════════════════════════════════════╗
 ║     Westminster Footfall Analysis - Server Running               ║
