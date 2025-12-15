@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Westminster Bin Sensor Placement Analysis</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Hero Section -->
+    <header class="hero">
+        <div class="hero-bg"></div>
+        <nav class="nav">
+            <div class="logo">
+                <span class="logo-icon">◈</span>
+                <span>Westminster Analytics</span>
+            </div>
+            <div class="nav-links">
+                <a href="#run-analysis">Run Analysis</a>
+                <a href="#data-layers">Data Layers</a>
+                <a href="#results">Results</a>
+                <a href="#recommendations">Recommendations</a>
+            </div>
+        </nav>
+        <div class="hero-content">
+            <div class="hero-badge">Borough of Westminster</div>
+            <h1>Smart Bin Sensor<br>Placement Analysis</h1>
+            <p class="hero-subtitle">Optimising waste collection through data-driven footfall analysis across 2,525 granular zones</p>
+            <div class="hero-stats">
+                <div class="stat">
+                    <span class="stat-value" id="stat-sensors">1,000</span>
+                    <span class="stat-label">Optimal Locations</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value" id="stat-categories">8</span>
+                    <span class="stat-label">Footfall Categories</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value" id="stat-zones">2,525</span>
+                    <span class="stat-label">Analysis Zones</span>
+                </div>
+            </div>
+            <a href="#run-analysis" class="cta-button">
+                <span>Start the Analysis</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 5v14M19 12l-7 7-7-7"/>
+                </svg>
+            </a>
+        </div>
+        <div class="scroll-indicator">
+            <div class="mouse"></div>
+        </div>
+    </header>
+
+    <!-- Run Analysis Section -->
+    <section class="section section-dark" id="run-analysis">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-number">01</span>
+                <h2>Run the Analysis</h2>
+                <p class="section-subtitle">Generate footfall zones and optimal sensor placements in real-time</p>
+            </div>
+            
+            <div class="analysis-runner">
+                <div class="runner-card">
+                    <div class="runner-header">
+                        <div class="runner-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="5 3 19 12 5 21 5 3"/>
+                            </svg>
+                        </div>
+                        <div class="runner-info">
+                            <h3>Westminster Footfall Analysis</h3>
+                            <p>Analyzes tube stations, bus stops, and licensed premises to generate footfall zones</p>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-container" id="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-fill"></div>
+                        </div>
+                        <div class="progress-info">
+                            <span class="progress-text" id="progress-text">Ready to run</span>
+                            <span class="progress-percent" id="progress-percent">0%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="runner-steps" id="runner-steps">
+                        <div class="runner-step" data-step="1">
+                            <span class="step-icon">○</span>
+                            <span class="step-text">Load London Datastore data</span>
+                        </div>
+                        <div class="runner-step" data-step="2">
+                            <span class="step-icon">○</span>
+                            <span class="step-text">Create analysis grid (2,525 cells)</span>
+                        </div>
+                        <div class="runner-step" data-step="3">
+                            <span class="step-icon">○</span>
+                            <span class="step-text">Calculate footfall scores</span>
+                        </div>
+                        <div class="runner-step" data-step="4">
+                            <span class="step-icon">○</span>
+                            <span class="step-text">Categorize into 8 zones</span>
+                        </div>
+                        <div class="runner-step" data-step="5">
+                            <span class="step-icon">○</span>
+                            <span class="step-text">Optimize 1,000 sensor locations</span>
+                        </div>
+                    </div>
+                    
+                    <button class="run-button" id="run-button" type="button">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="5 3 19 12 5 21 5 3"/>
+                        </svg>
+                        <span>Run Analysis</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Data Layer 1: Tube Stations -->
+    <section class="section data-layer-section" id="data-layers">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-number">02</span>
+                <h2>Data Layer: Tube Stations</h2>
+                <p class="section-subtitle">TfL station entry/exit data forms the backbone of our footfall model</p>
+            </div>
+            
+            <div class="data-layer-content">
+                <div class="layer-narrative">
+                    <div class="layer-weight">
+                        <span class="weight-badge tube-badge">45% Weight</span>
+                    </div>
+                    <h3>The Tube Network Effect</h3>
+                    <p>Underground stations are the primary drivers of pedestrian footfall in Westminster. Each station creates a <strong>500-metre influence zone</strong> where foot traffic is elevated.</p>
+                    <p>We use <strong>inverse-distance weighting</strong>—the closer a bin is to a station, the higher its expected fill rate. Station usage (annual entries/exits) acts as a multiplier.</p>
+                    
+                    <div class="layer-stats">
+                        <div class="layer-stat">
+                            <span class="stat-number" id="tubes-count">31</span>
+                            <span class="stat-desc">Stations in Westminster</span>
+                        </div>
+                        <div class="layer-stat">
+                            <span class="stat-number">98M</span>
+                            <span class="stat-desc">Annual usage (Oxford Circus)</span>
+                        </div>
+                        <div class="layer-stat">
+                            <span class="stat-number">500m</span>
+                            <span class="stat-desc">Influence radius</span>
+                        </div>
+                    </div>
+                    
+                    <div class="formula-display">
+                        <span class="formula-label">Influence Formula:</span>
+                        <code>score += usage × (1 - distance/500)²</code>
+                    </div>
+                </div>
+                
+                <div class="layer-map-container">
+                    <div class="map-wrapper">
+                        <div id="map-tubes" class="layer-map"></div>
+                        <div class="map-controls">
+                            <button class="map-control active" data-layer="points" onclick="toggleTubeLayer('points', this)">
+                                <span class="control-dot"></span> Station Points
+                            </button>
+                            <button class="map-control" data-layer="influence" onclick="toggleTubeLayer('influence', this)">
+                                <span class="control-dot"></span> Influence Grid
+                            </button>
+                        </div>
+                    </div>
+                    <div class="map-legend inline-legend">
+                        <div class="legend-item">
+                            <span class="legend-marker tube-marker"></span>
+                            <span>Tube Station</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-gradient tube-gradient"></span>
+                            <span>High → Low Influence</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Data Layer 2: Bus Stops -->
+    <section class="section section-dark data-layer-section" id="bus-layer">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-number">03</span>
+                <h2>Data Layer: Bus Stops</h2>
+                <p class="section-subtitle">High-frequency bus corridors create continuous pedestrian flow</p>
+            </div>
+            
+            <div class="data-layer-content reverse">
+                <div class="layer-map-container">
+                    <div class="map-wrapper">
+                        <div id="map-buses" class="layer-map"></div>
+                        <div class="map-controls">
+                            <button class="map-control active" data-layer="points" onclick="toggleBusLayer('points', this)">
+                                <span class="control-dot"></span> Stop Points
+                            </button>
+                            <button class="map-control" data-layer="influence" onclick="toggleBusLayer('influence', this)">
+                                <span class="control-dot"></span> Influence Grid
+                            </button>
+                        </div>
+                    </div>
+                    <div class="map-legend inline-legend">
+                        <div class="legend-item">
+                            <span class="legend-marker bus-marker"></span>
+                            <span>Bus Stop</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-gradient bus-gradient"></span>
+                            <span>High → Low Influence</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="layer-narrative">
+                    <div class="layer-weight">
+                        <span class="weight-badge bus-badge">30% Weight</span>
+                    </div>
+                    <h3>Street-Level Connectivity</h3>
+                    <p>Bus stops capture <strong>street-level pedestrian activity</strong> that tube stations miss. High-frequency corridors like Oxford Street see 60+ buses per hour.</p>
+                    <p>Each stop's influence is weighted by <strong>service frequency</strong>—more buses means more people waiting, alighting, and passing by.</p>
+                    
+                    <div class="layer-stats">
+                        <div class="layer-stat">
+                            <span class="stat-number" id="buses-count">214</span>
+                            <span class="stat-desc">Bus stops mapped</span>
+                        </div>
+                        <div class="layer-stat">
+                            <span class="stat-number">60+</span>
+                            <span class="stat-desc">Buses/hour (peak corridors)</span>
+                        </div>
+                        <div class="layer-stat">
+                            <span class="stat-number">200m</span>
+                            <span class="stat-desc">Influence radius</span>
+                        </div>
+                    </div>
+                    
+                    <div class="formula-display">
+                        <span class="formula-label">Influence Formula:</span>
+                        <code>score += frequency × (1 - distance/200)</code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Data Layer 3: Licensed Premises -->
+    <section class="section data-layer-section" id="premises-layer">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-number">04</span>
+                <h2>Data Layer: Licensed Premises</h2>
+                <p class="section-subtitle">The evening economy creates distinct footfall patterns after dark</p>
+            </div>
+            
+            <div class="data-layer-content">
+                <div class="layer-narrative">
+                    <div class="layer-weight">
+                        <span class="weight-badge premises-badge">25% Weight</span>
+                    </div>
+                    <h3>Night-time Economy</h3>
+                    <p>Westminster has one of London's highest concentrations of <strong>pubs, restaurants, bars, and clubs</strong>. These create footfall peaks in evenings and weekends.</p>
+                    <p>Premises are weighted by <strong>capacity</strong>—a 500-person nightclub generates more waste than a 30-seat café.</p>
+                    
+                    <div class="layer-stats">
+                        <div class="layer-stat">
+                            <span class="stat-number" id="premises-count">845</span>
+                            <span class="stat-desc">Licensed premises</span>
+                        </div>
+                        <div class="layer-stat">
+                            <span class="stat-number">150+</span>
+                            <span class="stat-desc">Venues in Soho alone</span>
+                        </div>
+                        <div class="layer-stat">
+                            <span class="stat-number">150m</span>
+                            <span class="stat-desc">Influence radius</span>
+                        </div>
+                    </div>
+                    
+                    <div class="hotspot-tags">
+                        <span class="hotspot-tag">Soho</span>
+                        <span class="hotspot-tag">Covent Garden</span>
+                        <span class="hotspot-tag">Leicester Square</span>
+                        <span class="hotspot-tag">Chinatown</span>
+                        <span class="hotspot-tag">Mayfair</span>
+                    </div>
+                    
+                    <div class="formula-display">
+                        <span class="formula-label">Influence Formula:</span>
+                        <code>score += capacity × (1 - distance/150)</code>
+                    </div>
+                </div>
+                
+                <div class="layer-map-container">
+                    <div class="map-wrapper">
+                        <div id="map-premises" class="layer-map"></div>
+                        <div class="map-controls">
+                            <button class="map-control active" data-layer="points" onclick="togglePremisesLayer('points', this)">
+                                <span class="control-dot"></span> Premises Points
+                            </button>
+                            <button class="map-control" data-layer="influence" onclick="togglePremisesLayer('influence', this)">
+                                <span class="control-dot"></span> Influence Grid
+                            </button>
+                        </div>
+                    </div>
+                    <div class="map-legend inline-legend">
+                        <div class="legend-item">
+                            <span class="legend-marker premises-marker"></span>
+                            <span>Licensed Premises</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-gradient premises-gradient"></span>
+                            <span>High → Low Influence</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Combined Score Section -->
+    <section class="section section-dark" id="combined">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-number">05</span>
+                <h2>Combined Footfall Score</h2>
+                <p class="section-subtitle">All three data layers weighted and combined into a unified model</p>
+            </div>
+            
+            <div class="combination-visual">
+                <div class="combination-formula">
+                    <div class="formula-component tube-component">
+                        <span class="component-icon">🚇</span>
+                        <span class="component-weight">0.45</span>
+                        <span class="component-label">Tube</span>
+                    </div>
+                    <span class="formula-operator">+</span>
+                    <div class="formula-component bus-component">
+                        <span class="component-icon">🚌</span>
+                        <span class="component-weight">0.30</span>
+                        <span class="component-label">Bus</span>
+                    </div>
+                    <span class="formula-operator">+</span>
+                    <div class="formula-component premises-component">
+                        <span class="component-icon">🍺</span>
+                        <span class="component-weight">0.25</span>
+                        <span class="component-label">Premises</span>
+                    </div>
+                    <span class="formula-operator">=</span>
+                    <div class="formula-result">
+                        <span class="result-label">Footfall Score</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="full-map-container">
+                <div id="map-combined" class="full-map"></div>
+                
+                <!-- Grid Display Controls -->
+                <div class="grid-controls">
+                    <div class="control-group">
+                        <label class="threshold-label">Multi-Ward Selection:</label>
+                        <div id="selected-wards-display" class="selected-wards-display">
+                            <span class="no-selection">All wards (click table to select)</span>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class="threshold-label">Footfall Threshold: <span id="threshold-value">0%</span></label>
+                        <input type="range" id="threshold-slider" min="0" max="50" value="0" 
+                               oninput="updateThreshold(this.value)">
+                        <div id="threshold-info" class="threshold-info"></div>
+                    </div>
+                    <div class="control-info">
+                        <span id="visible-cells-count">Loading...</span> cells visible
+                    </div>
+                </div>
+                
+                <!-- Bin Upload & Selection Controls -->
+                <div class="bin-controls">
+                    <h4>Bin Locations</h4>
+                    <div class="bin-upload-section">
+                        <label class="upload-btn">
+                            <input type="file" id="bin-upload-input" accept=".csv" onchange="handleBinFileUpload(event)" style="display:none;">
+                            <span>📁 Upload CSV</span>
+                        </label>
+                        <div id="upload-status" style="display:none;">
+                            <span><span id="uploaded-bins-count">0</span> bins uploaded</span>
+                            <button onclick="clearUploadedBins()" class="clear-btn">✕</button>
+                        </div>
+                    </div>
+                    <div class="bin-selection-section">
+                        <div class="selection-count">
+                            <span id="selected-bins-count">0</span> bins selected
+                        </div>
+                        <div class="selection-actions">
+                            <button onclick="selectAllVisibleBins()" class="action-btn">Select All (max 1000)</button>
+                            <button onclick="clearBinSelection()" class="action-btn secondary">Clear</button>
+                        </div>
+                        <button id="export-selection-btn" onclick="exportSelectedBins()" class="export-btn" disabled>
+                            📥 Export Selection to CSV
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="map-overlay-legend">
+                    <h4>Footfall Categories</h4>
+                    <p class="legend-hint">Click bins to select/deselect</p>
+                    <div class="category-legend">
+                        <div class="cat-item"><span style="background:#1a9850"></span>Very Low (Residential)</div>
+                        <div class="cat-item"><span style="background:#91cf60"></span>Low</div>
+                        <div class="cat-item"><span style="background:#d9ef8b"></span>Low-Medium</div>
+                        <div class="cat-item"><span style="background:#fee08b"></span>Medium</div>
+                        <div class="cat-item"><span style="background:#fdae61"></span>Medium-High</div>
+                        <div class="cat-item"><span style="background:#f46d43"></span>High</div>
+                        <div class="cat-item"><span style="background:#d73027"></span>Very High</div>
+                        <div class="cat-item"><span style="background:#a50026"></span>Peak (Commercial)</div>
+                    </div>
+                    <div class="bin-legend" style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1);">
+                        <div class="cat-item"><span style="background:#10b981; border-radius: 50%;"></span>Bin Location</div>
+                        <div class="cat-item"><span style="background:#f59e0b; border-radius: 50%;"></span>Selected Bin</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="category-distribution" id="results">
+                <h3>Zone Distribution</h3>
+                <div class="distribution-bars">
+                    <div class="dist-bar" data-cat="0">
+                        <div class="dist-label">Residential</div>
+                        <div class="dist-track"><div class="dist-fill" style="--color:#1a9850; --width:12.5%"></div></div>
+                        <div class="dist-value">316</div>
+                    </div>
+                    <div class="dist-bar" data-cat="1">
+                        <div class="dist-label">Low</div>
+                        <div class="dist-track"><div class="dist-fill" style="--color:#91cf60; --width:12.5%"></div></div>
+                        <div class="dist-value">316</div>
+                    </div>
+                    <div class="dist-bar" data-cat="2">
+                        <div class="dist-label">Low-Medium</div>
+                        <div class="dist-track"><div class="dist-fill" style="--color:#d9ef8b; --width:12.5%"></div></div>
+                        <div class="dist-value">315</div>
+                    </div>
+                    <div class="dist-bar" data-cat="3">
+                        <div class="dist-label">Medium</div>
+                        <div class="dist-track"><div class="dist-fill" style="--color:#fee08b; --width:12.5%"></div></div>
+                        <div class="dist-value">316</div>
+                    </div>
+                    <div class="dist-bar" data-cat="4">
+                        <div class="dist-label">Medium-High</div>
+                        <div class="dist-track"><div class="dist-fill" style="--color:#fdae61; --width:12.5%"></div></div>
+                        <div class="dist-value">316</div>
+                    </div>
+                    <div class="dist-bar" data-cat="5">
+                        <div class="dist-label">High</div>
+                        <div class="dist-track"><div class="dist-fill" style="--color:#f46d43; --width:12.5%"></div></div>
+                        <div class="dist-value">315</div>
+                    </div>
+                    <div class="dist-bar" data-cat="6">
+                        <div class="dist-label">Very High</div>
+                        <div class="dist-track"><div class="dist-fill" style="--color:#d73027; --width:12.5%"></div></div>
+                        <div class="dist-value">316</div>
+                    </div>
+                    <div class="dist-bar" data-cat="7">
+                        <div class="dist-label">Peak</div>
+                        <div class="dist-track"><div class="dist-fill" style="--color:#a50026; --width:12.5%"></div></div>
+                        <div class="dist-value">315</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footfall Summary Section -->
+    <section class="section" id="footfall-summary">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-number">06</span>
+                <h2>Footfall Summary by Ward</h2>
+                <p class="section-subtitle">Estimated pedestrian traffic and bin fill rates across Westminster</p>
+            </div>
+            
+            <div class="summary-totals" id="footfall-totals">
+                <div class="total-card">
+                    <div class="total-icon">👥</div>
+                    <div class="total-value" id="total-people">--</div>
+                    <div class="total-label">Est. People/Hour (Borough)</div>
+                </div>
+                <div class="total-card">
+                    <div class="total-icon">🗑️</div>
+                    <div class="total-value" id="avg-fill-rate">--</div>
+                    <div class="total-label">Avg Daily Bin Fill Rate</div>
+                </div>
+                <div class="total-card">
+                    <div class="total-icon">📍</div>
+                    <div class="total-value" id="total-wards">--</div>
+                    <div class="total-label">Wards Analysed</div>
+                </div>
+            </div>
+            
+            <div class="ward-breakdown" id="ward-breakdown">
+                <div class="breakdown-header">
+                    <h3>Ward Breakdown</h3>
+                    <div class="table-controls">
+                        <input type="text" id="ward-search" placeholder="Search wards..." oninput="filterWardTable(this.value)" class="table-search">
+                    </div>
+                </div>
+                <div class="ward-table-container">
+                    <table class="data-table" id="ward-table">
+                        <thead>
+                            <tr>
+                                <th onclick="sortWardTable('ward')" class="sortable">Ward <span class="sort-icon">↕</span></th>
+                                <th onclick="sortWardTable('people')" class="sortable">People/Hour <span class="sort-icon">↕</span></th>
+                                <th onclick="sortWardTable('fill')" class="sortable">Avg Fill Rate <span class="sort-icon">↕</span></th>
+                                <th onclick="sortWardTable('zones')" class="sortable">Zones <span class="sort-icon">↕</span></th>
+                                <th onclick="sortWardTable('sensors')" class="sortable">Sensors <span class="sort-icon">↕</span></th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ward-table-body">
+                            <tr><td colspan="6" class="loading-placeholder">Run analysis to see ward breakdown</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Road Details Panel -->
+                <div id="road-details-panel" class="road-details-panel" style="display: none;">
+                    <div class="panel-header">
+                        <h4 id="road-panel-title">Roads in Ward</h4>
+                        <button onclick="closeRoadPanel()" class="close-panel-btn">✕</button>
+                    </div>
+                    <table class="data-table road-table">
+                        <thead>
+                            <tr>
+                                <th>Road</th>
+                                <th>People/Hr</th>
+                                <th>Fill Rate</th>
+                                <th>Zones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="road-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sensor Placement Summary Section -->
+    <section class="section section-dark" id="sensor-summary">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-number">07</span>
+                <h2>Sensor Placement Summary</h2>
+                <p class="section-subtitle">Distribution of 1,000 recommended sensors across wards and roads</p>
+            </div>
+            
+            <!-- Sensor Distribution Weighting Controls -->
+            <div class="weighting-controls">
+                <h3>Sensor Distribution Weighting</h3>
+                <p class="weighting-description">Adjust how sensors are distributed across footfall categories. Higher weights mean more sensors in that category.</p>
+                
+                <div class="weight-sliders">
+                    <div class="weight-slider-group">
+                        <div class="weight-label">
+                            <span class="weight-category high">High Footfall</span>
+                            <span class="weight-desc">(Categories 6-7: Very High, Peak)</span>
+                        </div>
+                        <div class="slider-row">
+                            <input type="range" id="weight-high" min="10" max="60" value="30" 
+                                   oninput="updateSensorWeight('high', this.value)">
+                            <span class="weight-value" id="weight-high-value">30%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="weight-slider-group">
+                        <div class="weight-label">
+                            <span class="weight-category medium">Medium Footfall</span>
+                            <span class="weight-desc">(Categories 3-5: Medium to High)</span>
+                        </div>
+                        <div class="slider-row">
+                            <input type="range" id="weight-medium" min="10" max="60" value="40" 
+                                   oninput="updateSensorWeight('medium', this.value)">
+                            <span class="weight-value" id="weight-medium-value">40%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="weight-slider-group">
+                        <div class="weight-label">
+                            <span class="weight-category low">Low Footfall</span>
+                            <span class="weight-desc">(Categories 0-2: Very Low to Low-Medium)</span>
+                        </div>
+                        <div class="slider-row">
+                            <input type="range" id="weight-low" min="10" max="60" value="30" 
+                                   oninput="updateSensorWeight('low', this.value)">
+                            <span class="weight-value" id="weight-low-value">30%</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="weight-summary">
+                    <div class="weight-total">
+                        Total: <span id="weight-total">100%</span>
+                    </div>
+                    <button onclick="recalculateSensorDistribution()" class="recalculate-btn">
+                        🔄 Recalculate Distribution
+                    </button>
+                </div>
+            </div>
+            
+            <div class="summary-totals" id="sensor-totals">
+                <div class="total-card accent">
+                    <div class="total-icon">📡</div>
+                    <div class="total-value" id="total-sensors">--</div>
+                    <div class="total-label">Sensors Placed</div>
+                </div>
+                <div class="total-card">
+                    <div class="total-icon">👥</div>
+                    <div class="total-value" id="sensor-coverage-people">--</div>
+                    <div class="total-label">People/Hour Covered</div>
+                </div>
+                <div class="total-card">
+                    <div class="total-icon">🗑️</div>
+                    <div class="total-value" id="sensor-avg-fill">--</div>
+                    <div class="total-label">Avg Fill Rate at Sensors</div>
+                </div>
+            </div>
+            
+            <div class="sensor-breakdown" id="sensor-breakdown">
+                <div class="breakdown-header">
+                    <h3>Sensor Distribution by Ward</h3>
+                    <div class="table-controls">
+                        <input type="text" id="sensor-ward-search" placeholder="Search wards..." oninput="filterSensorWardTable(this.value)" class="table-search">
+                    </div>
+                </div>
+                <div class="ward-table-container">
+                    <table class="data-table" id="sensor-ward-table">
+                        <thead>
+                            <tr>
+                                <th onclick="sortSensorWardTable('ward')" class="sortable">Ward <span class="sort-icon">↕</span></th>
+                                <th onclick="sortSensorWardTable('sensors')" class="sortable">Sensors <span class="sort-icon">↕</span></th>
+                                <th onclick="sortSensorWardTable('people')" class="sortable">Coverage (People/Hr) <span class="sort-icon">↕</span></th>
+                                <th onclick="sortSensorWardTable('fill')" class="sortable">Avg Fill Rate <span class="sort-icon">↕</span></th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sensor-ward-table-body">
+                            <tr><td colspan="5" class="loading-placeholder">Run analysis to see sensor distribution</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Sensor Road Details Panel -->
+                <div id="sensor-road-details-panel" class="road-details-panel" style="display: none;">
+                    <div class="panel-header">
+                        <h4 id="sensor-road-panel-title">Sensors in Ward</h4>
+                        <button onclick="closeSensorRoadPanel()" class="close-panel-btn">✕</button>
+                    </div>
+                    <table class="data-table road-table">
+                        <thead>
+                            <tr>
+                                <th>Road</th>
+                                <th>Sensors</th>
+                                <th>People/Hr</th>
+                                <th>Fill Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sensor-road-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sensor Placement Section -->
+    <section class="section" id="recommendations">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-number">08</span>
+                <h2>Optimised Sensor Placement</h2>
+                <p class="section-subtitle">1,000 sensors distributed for representative borough-wide coverage</p>
+            </div>
+            
+            <div class="placement-strategy">
+                <div class="strategy-card">
+                    <div class="strategy-icon">🎯</div>
+                    <h3>Representative Sampling</h3>
+                    <p>Rather than clustering all sensors in high-footfall areas, we distribute across all categories to capture the full spectrum of bin fill patterns.</p>
+                </div>
+                <div class="strategy-card">
+                    <div class="strategy-icon">📍</div>
+                    <h3>Spatial Distribution</h3>
+                    <p>Within each category, sensors are spread geographically to avoid redundant coverage of bins with similar fill rates.</p>
+                </div>
+                <div class="strategy-card">
+                    <div class="strategy-icon">📊</div>
+                    <h3>√-Proportional Allocation</h3>
+                    <p>Square-root weighting ensures low-footfall areas aren't under-represented while high-footfall areas get adequate coverage.</p>
+                </div>
+            </div>
+            
+            <div class="sensor-map-container">
+                <div id="map-sensors" class="full-map"></div>
+                <div class="map-overlay-legend sensor-legend">
+                    <h4>Sensor Locations</h4>
+                    <div class="sensor-legend-items">
+                        <div class="legend-row">
+                            <span class="sensor-dot"></span>
+                            <span>Selected for sensor (1,000)</span>
+                        </div>
+                        <div class="legend-row">
+                            <span class="bin-dot"></span>
+                            <span>Other bins</span>
+                        </div>
+                    </div>
+                    <div class="sensor-distribution-mini">
+                        <h5>Distribution by Category</h5>
+                        <div class="mini-bars" id="sensor-dist-bars">
+                            <!-- Filled by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="download-section">
+                <h3>Export Results</h3>
+                <p>Download the analysis outputs for use in your GIS platform</p>
+                <div class="download-buttons">
+                    <a href="/output/recommended_sensor_locations.csv" download class="download-btn primary">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                        </svg>
+                        <span>Sensor Locations (CSV)</span>
+                    </a>
+                    <a href="/output/westminster_footfall_grid.geojson" download class="download-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                        </svg>
+                        <span>Footfall Grid (GeoJSON)</span>
+                    </a>
+                    <a href="/output/westminster_footfall_grid.csv" download class="download-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                        </svg>
+                        <span>Full Grid Data (CSV)</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <span class="logo-icon">◈</span>
+                    <span>Westminster Bin Sensor Analysis</span>
+                </div>
+                <p>Data-driven waste management optimisation for the Borough of Westminster</p>
+            </div>
+            <div class="footer-bottom">
+                <p>Analysis powered by London Datastore • December 2024</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

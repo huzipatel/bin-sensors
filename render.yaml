@@ -1,0 +1,26 @@
+# Render Blueprint - Infrastructure as Code
+# Deploy with: https://render.com/docs/blueprint-spec
+
+services:
+  # Main Web Service
+  - type: web
+    name: westminster-bin-sensors
+    runtime: python
+    region: frankfurt  # or oregon, singapore, ohio
+    plan: free  # or starter, standard, pro
+    buildCommand: pip install -r requirements.txt
+    startCommand: python backend/server.py --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: PORT
+        value: 8080
+    healthCheckPath: /api/status
+    autoDeploy: true  # Auto-deploy on push to main branch
+    
+    # Persistent disk for output files (optional, paid feature)
+    # disk:
+    #   name: data
+    #   mountPath: /app/output
+    #   sizeGB: 1
+
